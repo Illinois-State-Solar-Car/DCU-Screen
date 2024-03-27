@@ -211,7 +211,7 @@ while True:
 
             #get amps and rpm, calculate mph from rpm
             if next_message.id == 0x402:
-                holder = struct.unpack('ff', next_message.data)
+                holder = struct.unpack('<ff', next_message.data)
                 rpm = holder[0]
                 current = holder[1]
                 mph = rpm * tire_diameter * 0.003 # * 3.14 * 60 * 1/12 * 5280 = 0.002975, I decided to round a little bit just because we run this calculation multiple times a second, also there is no reason to be doing the whole calculation multiple times a second too
@@ -222,7 +222,7 @@ while True:
                 
             #get motor and motor controller temp
             if next_message.id == 0x40B:
-                holder = struct.unpack('ff', next_message.data)
+                holder = struct.unpack('<ff', next_message.data)
                 motor_temp = holder[0]
                 heatsink_temp = holder[1]
                 #print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
