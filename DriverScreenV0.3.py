@@ -8,7 +8,6 @@ This new one has like 50 less lines of code and more comments
 Also imo easier to understand because I broke up some stuff into functions
 
 Updates:
-deleted dsp_temp because I didn't know what it did and because it wasn't used anywhere else
 
 Please make sure to include the following in the lib folder:
 adafruit_display_text
