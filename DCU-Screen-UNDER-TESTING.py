@@ -211,44 +211,24 @@ while True:
             #get amps and rpm, calculate mph from rpm
             if next_message.id == 0x402:
                 holder = struct.unpack('<ff', next_message.data)
-                rpm = holder[0]
+                voltage = holder[0]
                 current = holder[1]
+
+            if next_message.id == 0x403:
+                holder = struct.unpack('<ff', next_message.data)
+                rpm = holder[0]
                 mph = rpm * tire_diameter * 0.003 # * 3.14 * 60 * 1/12 * 5280 = 0.002975, I decided to round a little bit just because we run this calculation multiple times a second, also there is no reason to be doing the whole calculation multiple times a second too
                 #print("Message From: {}: [RPM = {}; MPH = {}; A = {}]".format(hex(next_message.id),rpm,mph,current))
                 #helps with testing
                 
-                
-                
             #get motor and motor controller temp
             if next_message.id == 0x40B:
                 holder = struct.unpack('<ff', next_message.data)
-                motor_temp = holder[0]
+                motor_temp = holder[0] #will not get good data until thermistor is hooked up to the motor
                 heatsink_temp = holder[1]
                 #print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
                 #helps with testing
                 
-            #motor controller timeout stuff (i think)
-            if next_message == 0x401:
-                DCU_timeout = time.monotonic_ns() - prevDCU_time
-                prevDCU_time = time.monotonic_ns()
-
-
-            #grab battery temp data (mainly for BMS reasons)
-            if next_message.id == 0x6B1:
-                holder = struct.unpack('>hhhxx', next_message.data)
-                lowTemp = holder[0]
-                highTemp = holder[1]
-
-            #over/under current protection
-            if (current >= 70 or current <= -15):
-                #print("Amperage over/under")
-                draw_bms_error("BATT AMPS")
-
-            #battery temp protection
-            elif(highTemp > 45 or lowTemp < 0):
-                #print("Battery temp over/under")
-                draw_bms_error("BATT TEMP")
-
             #General Temperature Protection System (GPTS)
             #basically if you see a star after one of the temperatures, the driver needs to be aware and take it easy for a bit until everything cools back down
             pico_temp = microcontroller.cpu.temperature
