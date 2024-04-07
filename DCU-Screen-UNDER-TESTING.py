@@ -69,7 +69,7 @@ startTime = time.time() #grab the current time
 
 #display context
 splash = displayio.Group()
-display.show(splash)
+display.root_group = splash
 
 color_bitmap = displayio.Bitmap(display.width, display.height, 1)
 color_palette = displayio.Palette(1)
