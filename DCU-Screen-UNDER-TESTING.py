@@ -192,72 +192,72 @@ while True:
 		text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
 		text_group.append(text_area)  # Subgroup for text scaling
 		splash[-1] = text_group
-
-
-        message = Message(id=0x6b4, data=struct.pack('<ff',mph,current), extended=False)
-        send_success = mcp.send(message)
-        runTime = time.time()
-        
-
-        
-        #Here starts where we do the CAN things
-        message_count = listener.in_waiting()
-        print("message count = {}".format(message_count),end = '\n')
-        
-        if message_count == 0:
-
-            continue
-        
-        next_message = listener.receive()
-        message_num = 0
-
-        
-        while not next_message is None:
-
-            message_num += 1
-
-            # Check the id to properly unpack it
-            if next_message.id == 0x402:
-
-            #unpack and print the message
-                holder = struct.unpack('<ff',next_message.data)
-                #voltage = holder[0] #we don't need voltage and we are not displaying it
-                current = holder[1]
-                #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
-
-
-
-            if next_message.id == 0x403:
-                #unpack and print the message
-                holder = struct.unpack('<ff',next_message.data)
-                rpm = holder[0]
-                #mph = rpm*tire_diameter*math.pi*60*1/(12*5280)
-                mph = rpm * tire_diameter * 0.003 #rounded a little bit to prevent calculating the extra stuff every time we receive a message
-                #print("Message From: {}: [rpm = {}; mph = {}]".format(hex(next_message.id),rpm,mph))
-                
-            # Recieve tempetaure from heat sink and motor    
-            if next_message.id == 0x40B:
-                #unpack and print the message
-                holder = struct.unpack('<ff',next_message.data)
-                motor_temp = holder[0]
-                heatsink_temp = holder[0]
-                print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
-
-            if next_message == 0x40C:
-                holder = struct.unpack('<ff',next_message.data)
-                dsp_temp = holder[0]
-            
-            if next_message == 0x401:
-                DCU_timeout = time.monotonic_ns() - prevDCU_time
-                prevDCU_time = time.monotonic_ns()
-
-            
-
-
-            next_message = listener.receive()    
-
-
-
+	
+	
+	        message = Message(id=0x6b4, data=struct.pack('<ff',mph,current), extended=False)
+	        send_success = mcp.send(message)
+	        runTime = time.time()
+	        
+	
+	        
+	        #Here starts where we do the CAN things
+	        message_count = listener.in_waiting()
+	        print("message count = {}".format(message_count),end = '\n')
+	        
+	        if message_count == 0:
+	
+	            continue
+	        
+	        next_message = listener.receive()
+	        message_num = 0
+	
+	        
+	        while not next_message is None:
+	
+	            message_num += 1
+	
+	            # Check the id to properly unpack it
+	            if next_message.id == 0x402:
+	
+	            #unpack and print the message
+	                holder = struct.unpack('<ff',next_message.data)
+	                #voltage = holder[0] #we don't need voltage and we are not displaying it
+	                current = holder[1]
+	                #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
+	
+	
+	
+	            if next_message.id == 0x403:
+	                #unpack and print the message
+	                holder = struct.unpack('<ff',next_message.data)
+	                rpm = holder[0]
+	                #mph = rpm*tire_diameter*math.pi*60*1/(12*5280)
+	                mph = rpm * tire_diameter * 0.003 #rounded a little bit to prevent calculating the extra stuff every time we receive a message
+	                #print("Message From: {}: [rpm = {}; mph = {}]".format(hex(next_message.id),rpm,mph))
+	                
+	            # Recieve tempetaure from heat sink and motor    
+	            if next_message.id == 0x40B:
+	                #unpack and print the message
+	                holder = struct.unpack('<ff',next_message.data)
+	                motor_temp = holder[0]
+	                heatsink_temp = holder[0]
+	                print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
+	
+	            if next_message == 0x40C:
+	                holder = struct.unpack('<ff',next_message.data)
+	                dsp_temp = holder[0]
+	            
+	            if next_message == 0x401:
+	                DCU_timeout = time.monotonic_ns() - prevDCU_time
+	                prevDCU_time = time.monotonic_ns()
+	
+	            
+	
+	
+	            next_message = listener.receive()    
+	
+	
+	
 
 
 
