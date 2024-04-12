@@ -189,7 +189,7 @@ while True:
         # Draw pico/motorcontroller/motor temperature labels
         pico_temp = microcontroller.cpu.temperature
         text_group = displayio.Group(scale=1, x=0, y=60)
-        text = "P: {:04.1f}  H: {:04.1f}, M: {:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
+        text = "P:{:04.1f} H:{:04.1f} M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
         text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
         text_group.append(text_area)  # Subgroup for text scaling
         splash[-1] = text_group
@@ -256,6 +256,7 @@ while True:
 
 
             next_message = listener.receive()    
+
 
 
 
