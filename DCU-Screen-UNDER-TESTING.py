@@ -42,7 +42,7 @@ import adafruit_mcp2515
 import microcontroller 
 
 #declare our variables
-#tire diameter = 22 #don't need this because we shouldn't be calculating a constant every time we display something (see line x for further clarification)
+tire_diameter = 22 #don't need this because we shouldn't be calculating a constant every time we display something (see line x for further clarification)
 mph = 0
 volt = 0
 current = 0
