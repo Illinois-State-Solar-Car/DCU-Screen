@@ -1,11 +1,6 @@
 '''
 This code is for the DCU Screen (driver control unit)
 Last updated: 3/25/24
-Mason Myre
-
-The current DCU Screen code on the github works, but I wanted to rewrite it a bit to be overall a bit cleaner
-This new one has like 50 less lines of code and more comments
-Also imo easier to understand because I broke up some stuff into functions
 
 Updates:
 
@@ -16,12 +11,10 @@ adafruit_ssd1325.py
 
 TODO:
 Ask shane if we actually need to grab the current time twice
-ask shane if we can't make 'while not next_message is None' at least a little bit more readable
-We changed the 0x402 can code here, can we change it in the motor controller code too?
+
 '''
 #DCU Screen V0.4
 #4/10/24
-#last code was slower than Alpine F1 in 2024 so we gotta rewrite it
 
 
 #imports
