@@ -1,9 +1,15 @@
 '''
 This code is for the DCU Screen (driver control unit)
-Last updated: 3/25/24
+Last updated: 4/30/24
 
 Updates:
+4/30/24
+Build output string when receiving can values
+I probably broke something so I'll need to test...again
+But now at least we get the System for Heating and Internal Temperature monitor
 
+Updates:
+3/25/24
 Please make sure to include the following in the lib folder:
 adafruit_display_text
 adafruit_mcp2515
@@ -36,6 +42,7 @@ import microcontroller
 
 #declare our variables
 tire_diameter = 22 #don't need this because we shouldn't be calculating a constant every time we display something (see line x for further clarification)
+rpm_to_mph = tire_diameter * 0.003
 mph = 0
 volt = 0
 current = 0
@@ -45,6 +52,11 @@ pico_temp = 0
 #DCU_timeout = 0 #not sure if we still use this
 #prevDCU_time = time.monotonic_ns() #also not sure if we still use this
 _can_queue_size = 300
+
+spd_text = "S: {:04.1f}".format(mph)
+amp_text = "A: {:04.1f}".format(current)
+heat_text = "P:{:04.1f} H:{:04.1f} M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
+
 
 #set up the displays
 boot_time = time.monotonic()
@@ -167,23 +179,19 @@ while True:
 
         # Draw Speed/effecency Label
         text_group = displayio.Group(scale=3, x=3, y=12)
-        text = "S: {:04.1f}".format(mph)
-        text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+        text_area = label.Label(terminalio.FONT, text = spd_text, color=0xFFFFFF)
         text_group.append(text_area)  # Subgroup for text scaling
         splash[-3] = text_group
 
         # Draw Current Label
         text_group = displayio.Group(scale=3, x=3, y=41)
-        text = "A: {:04.1f}".format(current)
-        text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+        text_area = label.Label(terminalio.FONT, text = amp_text, color=0xFFFFFF)
         text_group.append(text_area)  # Subgroup for text scaling
         splash[-2] = text_group
 
         # Draw pico/motorcontroller/motor temperature labels
-        pico_temp = microcontroller.cpu.temperature
         text_group = displayio.Group(scale=1, x=0, y=60)
-        text = "P:{:04.1f} H:{:04.1f} M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
-        text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+        text_area = label.Label(terminalio.FONT, text = heat_text, color=0xFFFFFF)
         text_group.append(text_area)  # Subgroup for text scaling
         splash[-1] = text_group
 
@@ -196,7 +204,7 @@ while True:
         
         #Here starts where we do the CAN things
         message_count = listener.in_waiting()
-        print("message count = {}".format(message_count),end = '\n')
+        #print("message count = {}".format(message_count),end = '\n')
         
         if message_count == 0:
 
@@ -211,31 +219,54 @@ while True:
             message_num += 1
 
             # Check the id to properly unpack it
-            if next_message.id == 0x402:
-
+            if next_message.id == 0x402: #amp and voltage data
             #unpack and print the message
                 holder = struct.unpack('<ff',next_message.data)
                 #voltage = holder[0] #we don't need voltage and we are not displaying it
                 current = holder[1]
                 #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
+                amp_text = "A: {:04.1f}".format(current)
 
-
-
-            if next_message.id == 0x403:
+    
+            if next_message.id == 0x403: #speed data
                 #unpack and print the message
                 holder = struct.unpack('<ff',next_message.data)
                 rpm = holder[0]
                 #mph = rpm*tire_diameter*math.pi*60*1/(12*5280)
-                mph = rpm * tire_diameter * 0.003 #rounded a little bit to prevent calculating the extra stuff every time we receive a message
+                mph = rpm * rpm_to_mph #did some calculations so we don't need to reinvent the wheel every time we display the speed
                 #print("Message From: {}: [rpm = {}; mph = {}]".format(hex(next_message.id),rpm,mph))
-                
+                spd_text = "S: {:04.1f}".format(mph)
+
             # Recieve tempetaure from heat sink and motor    
             if next_message.id == 0x40B:
                 #unpack and print the message
                 holder = struct.unpack('<ff',next_message.data)
                 motor_temp = holder[0]
                 heatsink_temp = holder[1]
-                print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
+                pico_temp = microcontroller.cpu.temperature
+                #System for Heating and Internal Temperature monitor
+                pico_text = "P:{:04.1f}".format(pico_temp)
+                heatsink_text = "H:{:04.1f}".format(heatsink_temp)
+                motor_text = "M:{:04.1f}".format(motor_temp)
+
+                if(pico_temp > 45):
+                    pico_text = pico_text + "*"
+                else:
+                    pico_text = pico_text + " "
+
+                if(heatsink_temp > 70):
+                    heatsink_text = heatsink_text + "*"
+                else:
+                    heatsink_text = heatsink_text + " "
+
+                if(motor_temp > 70):
+                    motor_text = motor_text + "*"
+                
+
+                heat_text = "P:{:04.1f} H:{:04.1f} M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
+
+              
+                #print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
 
             if next_message == 0x40C:
                 holder = struct.unpack('<ff',next_message.data)
