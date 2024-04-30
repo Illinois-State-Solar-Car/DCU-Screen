@@ -132,8 +132,8 @@ text_group.append(text_area)  # Subgroup for text scaling
 splash.append(text_group)
 
 # Draw pico/motorcontroller/motor temperature labels
-text_group = displayio.Group(scale=1, x=15, y=60)
-text = "P: {:04.1f}  H: {:04.1f}, M: {:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
+text_group = displayio.Group(scale=1, x=3, y=60)
+text = "P:{:04.1f}*H:{:04.1f}*M:{:04.1f}*".format(pico_temp, heatsink_temp, motor_temp)
 text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
 text_group.append(text_area)  # Subgroup for text scaling
 splash.append(text_group)
@@ -190,14 +190,14 @@ while True:
         splash[-2] = text_group
 
         # Draw pico/motorcontroller/motor temperature labels
-        text_group = displayio.Group(scale=1, x=0, y=60)
+        text_group = displayio.Group(scale=1, x=3, y=60)
         text_area = label.Label(terminalio.FONT, text = heat_text, color=0xFFFFFF)
         text_group.append(text_area)  # Subgroup for text scaling
         splash[-1] = text_group
 
 
         message = Message(id=0x6b4, data=struct.pack('<ff',mph,current), extended=False)
-        send_success = mcp.send(message)
+        #send_success = mcp.send(message)
         runTime = time.time()
         
 
@@ -225,7 +225,7 @@ while True:
                 #voltage = holder[0] #we don't need voltage and we are not displaying it
                 current = holder[1]
                 #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
-                amp_text = "A: {:04.1f}".format(current)
+                amp_text = "A:{:04.1f}".format(current)
 
     
             if next_message.id == 0x403: #speed data
@@ -235,7 +235,7 @@ while True:
                 #mph = rpm*tire_diameter*math.pi*60*1/(12*5280)
                 mph = rpm * rpm_to_mph #did some calculations so we don't need to reinvent the wheel every time we display the speed
                 #print("Message From: {}: [rpm = {}; mph = {}]".format(hex(next_message.id),rpm,mph))
-                spd_text = "S: {:04.1f}".format(mph)
+                spd_text = "S:{:04.1f}".format(mph)
 
             # Recieve tempetaure from heat sink and motor    
             if next_message.id == 0x40B:
@@ -263,7 +263,7 @@ while True:
                     motor_text = motor_text + "*"
                 
 
-                heat_text = "P:{:04.1f} H:{:04.1f} M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
+                heat_text = "P:{:04.1f}H:{:04.1f}M:{:04.1f}".format(pico_temp, heatsink_temp, motor_temp)
 
               
                 #print("Message From: {}: [Motor Temp = {}; Heat Sink = {}]".format(hex(next_message.id),motor_temp,heatsink_temp))
